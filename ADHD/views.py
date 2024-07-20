@@ -104,11 +104,11 @@ def clean(request):
         save_path_questionnaire = Path('ADHD/temporary_files/' + str( request.META['REMOTE_ADDR'])+ "_questionnaire.txt" )
         save_path_reaction = Path('ADHD/temporary_files/'  + str( request.META['REMOTE_ADDR'])+ "_reaction-time-arrays.txt")
         
-        #os.remove(save_path_eye)
-        #os.remove(save_path_vocal)
-        #os.remove(save_path_questionnaire)
-        #os.remove(save_path_reaction)
-        #os.remove(save_path_initial)
+        os.remove(save_path_eye)
+        os.remove(save_path_vocal)
+        os.remove(save_path_questionnaire)
+        os.remove(save_path_reaction)
+        os.remove(save_path_initial)
         return JsonResponse({'message': 'Files deleted'}, status=200)  
     except: 
         return JsonResponse({'message': 'Error - could not delete files'}, status=201)  
