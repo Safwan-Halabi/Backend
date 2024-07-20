@@ -749,8 +749,8 @@
                         </div>
 
                         <div class="form-section-question-group">
-                            <label for="20">20. Where is there impairment? (Choose all that apply. If none, leave the
-                                options blank.)</label>
+                            <label for="20">20. Where is there impairment? (Choose all that apply. If none, choose None
+                                )</label>
                             <div class="form-section-answer-group">
                                 <input type="checkbox" name="ans20[]" id="ans20-0" />
                                 <label for="ans20-0" style="width: 80px;">Home</label>
@@ -760,6 +760,9 @@
 
                                 <input type="checkbox" name="ans20[]" id="ans20-2" />
                                 <label for="ans20-2" style="width: 80px;">Socially</label>
+
+                                <input type="checkbox" name="ans20[]" id="ans20-3" />
+                                <label for="ans20-3" style="width: 80px;">None</label>
                             </div>
                         </div>
                     </div>
@@ -928,20 +931,27 @@
         function getSelectedCheckboxes(name) {
             var checkboxes = document.getElementsByName(name);
             var selectedCheckboxes = [];
+            var flag = true;
             var totalScore = 0;
             for (var k = 0; k < checkboxes.length; k++) {
                 if (checkboxes[k].checked) {
                     var answerText = checkboxes[k].nextElementSibling.textContent.trim();
                     if (answerText === "Home") {
+                        flag = false;
                         totalScore += 1;
                     } else if (answerText === "School") {
+                        flag = false;
                         totalScore += 2;
                     } else if (answerText === "Socially") {
+                        flag = false;
                         totalScore += 3;
+                    } else if (answerText === "None") {
+                        flag = false;
+                        totalScore += 0;
                     }
                 }
             }
-            return totalScore > 0 ? totalScore : null;
+            return flag === false ? totalScore : null;
         }
 
     </script>
