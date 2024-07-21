@@ -514,15 +514,15 @@
         <button id="start-stop-button">Record</button>
         <button id="restore-elements-button" style="display:none;">Restore Elements</button>
 
-        <!-- Add the buttons here -->
-        <button id="next-test-button" onclick="location.href='{% url 'vocal' %}'" style="display:none;">Next
-            Test</button>
+        <!-- Add the buttons here
+        <button id="next-test-button" style="display:none;">Next
+            Test</button> -->
 
         <script>
             const webcamElem = document.getElementById("webcam");
             const downloadLink = document.getElementById("download-link");
             const startStopButton = document.getElementById("start-stop-button");
-            const nextTestButton = document.getElementById("next-test-button");
+            // const nextTestButton = document.getElementById("next-test-button");
             let title = document.getElementById("title");
             let instructions = document.getElementById("instructions");
             let instructions1 = document.getElementById("instructions-1");
@@ -609,6 +609,7 @@
                                 }
                             }
                         }
+                        location.href = '{% url 'vocal' %}'
 
                     } catch (error) {
                         console.error('Error uploading video:', error);
@@ -639,7 +640,7 @@
                         title.remove();
                         instructions.remove();
                         instructions1.remove();
-                        nextTestButton.style.display = "none";
+                        // nextTestButton.style.display = "none";
 
                         if (!initialCheck) {
                             testRunning = true;
@@ -703,7 +704,7 @@
 
                 // test concluded successfully
                 // show the option of moving forward to the next test and the option to retake the test
-                nextTestButton.style.display = 'block';
+                // nextTestButton.style.display = 'block';
             }
 
             document.addEventListener('endTest', testConclude);

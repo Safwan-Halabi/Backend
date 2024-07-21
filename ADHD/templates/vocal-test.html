@@ -332,8 +332,7 @@
             </div>
 
             <div class="button">
-                <button id="next-page-button" onclick="location.href='{% url 'questionnaire' %}'"
-                    style="display: none;">Next</button>
+                <button id="next-page-button" style="display: none;">Next</button>
             </div>
         </div>
     </section>
@@ -365,8 +364,9 @@
         const next_btn = document.getElementById('next-page-button');
 
         mic_btn.addEventListener('click', ToggleMic);
-        next_btn.addEventListener('click', () => {
-            sendRecording();
+        next_btn.addEventListener('click', async () => {
+            await sendRecording();
+            location.href = '{% url 'questionnaire' %}';
 
         });
 
