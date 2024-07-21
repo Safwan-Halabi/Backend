@@ -66,43 +66,82 @@ model_pred.summary()
 # Create your views here.
 
 def instructions(request):
+
+    if not request.session.session_key:
+        request.session.create()
+    session_id = request.session.session_key
+
     template = loader.get_template('instructions.html')
     return HttpResponse(template.render())
 
 def eyeTest(request):
+
+    if not request.session.session_key:
+        request.session.create()
+    session_id = request.session.session_key
+
     template = loader.get_template('eye-test.html')
     return HttpResponse(template.render())
 
 def vocalTest(request):
+
+    if not request.session.session_key:
+        request.session.create()
+    session_id = request.session.session_key
+
     template = loader.get_template('vocal-test.html')
     return HttpResponse(template.render())
 
 def questionnaire(request):
+
+    if not request.session.session_key:
+        request.session.create()
+    session_id = request.session.session_key
+
     template = loader.get_template('questionnaire-styled.html')
     return HttpResponse(template.render())
 
 
 def landingPage(request):
+
+    if not request.session.session_key:
+        request.session.create()
+    session_id = request.session.session_key
+
     template = loader.get_template('nodus.html')
     return HttpResponse(template.render())
 
 def FAQ(request):
+
+    if not request.session.session_key:
+        request.session.create()
+    session_id = request.session.session_key
+
     template = loader.get_template('FAQ.html')
     return HttpResponse(template.render())
 
 @csrf_exempt
 def processing(request):
+
+    if not request.session.session_key:
+        request.session.create()
+    session_id = request.session.session_key
+
     template = loader.get_template('processing.html')
     return HttpResponse(template.render())
 
 def clean(request):
 
+    if not request.session.session_key:
+        request.session.create()
+    session_id = request.session.session_key
+
     try:
-        save_path_initial = Path('ADHD/temporary_files/' + str( request.META['REMOTE_ADDR'])+ "_initial-video.webm" )
-        save_path_eye = Path('ADHD/temporary_files/' + str( request.META['REMOTE_ADDR'])+ "_recorded-video.webm" )
-        save_path_vocal = Path('ADHD/temporary_files/' + str( request.META['REMOTE_ADDR'])+ "_audio-recording.mp3" )
-        save_path_questionnaire = Path('ADHD/temporary_files/' + str( request.META['REMOTE_ADDR'])+ "_questionnaire.txt" )
-        save_path_reaction = Path('ADHD/temporary_files/'  + str( request.META['REMOTE_ADDR'])+ "_reaction-time-arrays.txt")
+        save_path_initial = Path('ADHD/temporary_files/' + str(session_id)+ "_initial-video.webm" )
+        save_path_eye = Path('ADHD/temporary_files/' + str(session_id)+ "_recorded-video.webm" )
+        save_path_vocal = Path('ADHD/temporary_files/' + str(session_id)+ "_audio-recording.mp3" )
+        save_path_questionnaire = Path('ADHD/temporary_files/' + str(session_id)+ "_questionnaire.txt" )
+        save_path_reaction = Path('ADHD/temporary_files/'  + str(session_id)+ "_reaction-time-arrays.txt")
         
         os.remove(save_path_eye)
         os.remove(save_path_vocal)
@@ -115,14 +154,19 @@ def clean(request):
 
 @csrf_exempt
 def results(request):
+
+    if not request.session.session_key:
+        request.session.create()
+    session_id = request.session.session_key
+
     template = loader.get_template('test-results.html')
 
     # Feed data to DL model and retrieve the probabilities
     ip = request.META['REMOTE_ADDR'] # Extract IP to conduct analysis on files with this IP
-    save_path_eye = Path('ADHD/temporary_files/' + str( request.META['REMOTE_ADDR'])+ "_recorded-video.webm" )
-    save_path_vocal = Path('ADHD/temporary_files/' + str( request.META['REMOTE_ADDR'])+ "_audio-recording.mp3" )
-    save_path_questionnaire = Path('ADHD/temporary_files/' + str( request.META['REMOTE_ADDR'])+ "_questionnaire.txt" )
-    save_path_reaction = Path('ADHD/temporary_files/'  + str( request.META['REMOTE_ADDR'])+ "_reaction-time-arrays.txt")
+    save_path_eye = Path('ADHD/temporary_files/' + str(session_id)+ "_recorded-video.webm" )
+    save_path_vocal = Path('ADHD/temporary_files/' + str(session_id)+ "_audio-recording.mp3" )
+    save_path_questionnaire = Path('ADHD/temporary_files/' + str(session_id)+ "_questionnaire.txt" )
+    save_path_reaction = Path('ADHD/temporary_files/'  + str(session_id)+ "_reaction-time-arrays.txt")
     
     questionnaire = ''
     reaction = ""
@@ -218,9 +262,14 @@ def get_tips(percentages):
 
 @csrf_exempt
 def upload_video(request):
+
+    if not request.session.session_key:
+        request.session.create()
+    session_id = request.session.session_key
+
     if request.method == 'POST' and request.FILES.get('initial-video'):
         video = request.FILES['initial-video']
-        save_path = Path('ADHD/temporary_files/' + str( request.META['REMOTE_ADDR'])+ "_" + video.name )
+        save_path = Path('ADHD/temporary_files/' + str(session_id)+ "_" + video.name )
         with open(save_path, 'wb+') as destination:
             for chunk in video.chunks():
                 destination.write(chunk)
@@ -235,11 +284,11 @@ def upload_video(request):
         video = request.FILES['recorded-video']
         base_reaction_time = request.POST['reactionTimeBase']
         dis_reaction_time = request.POST['reactionTimeDistractors']
-        save_path = Path('ADHD/temporary_files/' + str( request.META['REMOTE_ADDR'])+ "_" + video.name )
+        save_path = Path('ADHD/temporary_files/' + str(session_id)+ "_" + video.name )
         with open(save_path, 'wb+') as destination:
             for chunk in video.chunks():
                 destination.write(chunk)
-        save_path_arrays = Path('ADHD/temporary_files/'  + str( request.META['REMOTE_ADDR'])+ "_reaction-time-arrays.txt")
+        save_path_arrays = Path('ADHD/temporary_files/'  + str(session_id)+ "_reaction-time-arrays.txt")
         with open(save_path_arrays, 'w+') as destination:
             destination.write(base_reaction_time)
             destination.write('\n')
@@ -254,6 +303,7 @@ def upload_video(request):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def initial_video_check(url):
+
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
 
@@ -282,6 +332,8 @@ def initial_video_check(url):
     return detected > undetected*1.5 and detected > 40
 
 def eye_test_analysis(url):
+
+
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
 
@@ -366,9 +418,14 @@ def calculate_mean_median_std(eye_movement_distance_array):
 
 @csrf_exempt
 def upload_voice(request):
+
+    if not request.session.session_key:
+        request.session.create()
+    session_id = request.session.session_key
+
     if request.method == 'POST' and request.FILES.get('audio-recording'):
         audio = request.FILES['audio-recording']
-        save_path = Path('ADHD/temporary_files/' + str( request.META['REMOTE_ADDR'])+ "_" + audio.name )
+        save_path = Path('ADHD/temporary_files/' + str(session_id)+ "_" + audio.name )
         with open(save_path, 'wb+') as destination:
             for chunk in audio.chunks():
                 destination.write(chunk)
@@ -393,9 +450,14 @@ def analyze_voice(url):
 
 @csrf_exempt
 def upload_answers(request):
+
+    if not request.session.session_key:
+        request.session.create()
+    session_id = request.session.session_key
+
     if request.method == 'POST' and request.POST.get('questionnaire'): 
         answers = request.POST['questionnaire']
-        save_path_arrays = Path('ADHD/temporary_files/' + str( request.META['REMOTE_ADDR'])+ "_questionnaire.txt")
+        save_path_arrays = Path('ADHD/temporary_files/' + str(session_id)+ "_questionnaire.txt")
         with open(save_path_arrays, 'w+') as destination:
             destination.write(answers)
     return JsonResponse({'message': "Questionnaire answers uploaded successfully"}, status=200)
