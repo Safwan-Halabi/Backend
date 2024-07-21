@@ -608,8 +608,9 @@
                                     console.error('Video upload failed');
                                 }
                             }
+                            location.href = '{% url 'vocal' %}'
                         }
-                        location.href = '{% url 'vocal' %}'
+                        
 
                     } catch (error) {
                         console.error('Error uploading video:', error);
