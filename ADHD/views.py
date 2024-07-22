@@ -136,21 +136,60 @@ def clean(request):
         request.session.create()
     session_id = request.session.session_key
 
-    try:
-        save_path_initial = Path('ADHD/temporary_files/' + str(session_id)+ "_initial-video.webm" )
-        save_path_eye = Path('ADHD/temporary_files/' + str(session_id)+ "_recorded-video.webm" )
-        save_path_vocal = Path('ADHD/temporary_files/' + str(session_id)+ "_audio-recording.mp3" )
-        save_path_questionnaire = Path('ADHD/temporary_files/' + str(session_id)+ "_questionnaire.txt" )
-        save_path_reaction = Path('ADHD/temporary_files/'  + str(session_id)+ "_reaction-time-arrays.txt")
-        
+    eye = False
+    vocal = False
+    question = False
+    reaction = False
+    initial = False
+
+    save_path_initial = Path('ADHD/temporary_files/' + str(session_id)+ "_initial-video.webm" )
+    save_path_eye = Path('ADHD/temporary_files/' + str(session_id)+ "_recorded-video.webm" )
+    save_path_vocal = Path('ADHD/temporary_files/' + str(session_id)+ "_audio-recording.mp3" )
+    save_path_questionnaire = Path('ADHD/temporary_files/' + str(session_id)+ "_questionnaire.txt" )
+    save_path_reaction = Path('ADHD/temporary_files/'  + str(session_id)+ "_reaction-time-arrays.txt")
+    try:    
         os.remove(save_path_eye)
+        eye = True
+    except:
+        pass
+
+    try:    
         os.remove(save_path_vocal)
+        vocal = True
+    except:
+        pass
+
+    try:    
         os.remove(save_path_questionnaire)
+        question = True
+    except:
+        pass
+
+    try:
         os.remove(save_path_reaction)
+        reaction = True
+    except:
+        pass
+
+    try:
         os.remove(save_path_initial)
-        return JsonResponse({'message': 'Files deleted'}, status=200)  
+        initial = True
     except: 
-        return JsonResponse({'message': 'Error - could not delete files'}, status=201)  
+        pass
+    
+    ret = "Files deleted: "
+    if eye:
+        ret += "eye, "
+    if vocal:
+        ret += "vocal, "
+    if question:
+        ret += "question, "
+    if reaction:
+        ret += "reaction, "
+    if initial:
+        ret += "initial"
+    
+    return JsonResponse({'message': str(ret)}, status=200)  
 
 @csrf_exempt
 def results(request):
@@ -174,10 +213,10 @@ def results(request):
     reaction_time_dist = ''
 
 
-    #try:
-    voice_analysis = analyze_voice(save_path_vocal)
-    #except:
-     #   return JsonResponse({'message': 'Error - could not analyze voice'}, status=201)
+    try:
+        voice_analysis = analyze_voice(save_path_vocal)
+    except:
+        return JsonResponse({'message': 'Error - could not analyze voice'}, status=201)
     
     try:
         eye_analysis = eye_test_analysis(save_path_eye)
