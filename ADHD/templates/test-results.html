@@ -353,7 +353,9 @@
         }
 
         // Clean up files in backend
-        cleanUp();
+        document.addEventListener('DOMContentLoaded', (event) => {
+            cleanUp();
+        });
 
         let diagnosisDataBackend = [];
         {% for item in percentages %}

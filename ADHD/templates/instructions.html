@@ -307,6 +307,31 @@
             <img src="{% static 'images/nodus-icon-removebg-preview.png' %}" alt="NODUS Logo" sizes="50px" style="width: 70px;">
         </div>
     </footer>
+
+    <script>
+        async function cleanUp() {
+            const response1 = await fetch('/done/', {
+                method: 'GET',
+                body: null
+            });
+
+            if (response1.ok) {
+                // Redirect to the new page
+                console.log("flushed files from backend")
+            } else {
+                const data = await response.json();
+                const message = data.message;
+                customAlert(message + ", try running the test again to remove your files");
+            }
+        }
+
+        // Clean up files in backend
+        document.addEventListener('DOMContentLoaded', (event) => {
+            cleanUp();
+        });
+    </script>
+
+
 </body>
 
 </html>

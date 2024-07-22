@@ -42,7 +42,7 @@
         let reactionTimeArrayDistractors = [];
         let flag = false;
         let hasPressed = false;
-        let concludedFlag = false;
+        let concludedFlag = FALSE; // CHANGE TO FALSE WHEN PUSHING TO PROD
 
         const imagePaths = [
             staticUrls.images.car,
@@ -495,12 +495,12 @@
         <div style="justify-content: right; display: flex; text-align: center; align-items: center;">
             <img src="{% static 'images/nodus-icon-removebg-preview.png'%}" alt="NODUS Logo" sizes="50px">
             <!-- Add your logo URL here -->
-            <a class="logo-name" href="#" onclick="location.href='{% url 'landing' %}'"><strong>NODUS</strong></a>
+            <a class="logo-name navigation-element" href="#" onclick="location.href='{% url 'landing' %}'"><strong>NODUS</strong></a>
         </div>
         <nav style="padding: 10px;">
-            <a href="#" onclick="location.href='{% url 'landing' %}'">Home</a>
-            <a href="#" onclick="location.href='{% url 'instructions' %}'">Start Test</a>
-            <a href="#" onclick="location.href='{% url 'FAQ' %}'">FAQ</a>
+            <a class="navigation-element" href="#" onclick="location.href='{% url 'landing' %}'">Home</a>
+            <a class="navigation-element" href="#" onclick="location.href='{% url 'instructions' %}'">Start Test</a>
+            <a class="navigation-element" href="#" onclick="location.href='{% url 'FAQ' %}'">FAQ</a>
         </nav>
     </header>
     <section class="hero">
@@ -539,8 +539,6 @@
             const instructionsClone = instructions.cloneNode(true);
             const instructions1Clone = instructions1.cloneNode(true);
 
-
-
             // When test concludes the function below isn't called
             async function handleRecordingStop(blob) {
                 if (initialCheck) {
@@ -578,7 +576,17 @@
                 } else {
                     try {
                         if (concludedFlag) {
+                            console.log("ENTERED")
+                            const navigationElements = document.querySelectorAll('a.navigation-element');
+                            navigationElements.forEach(element => {
+                                    element.href = '#'; // Set href to # to avoid navigation
+                                    element.onclick = (event) => {
+                                        event.preventDefault(); // Prevent default behavior
+                                        return false; // Ensure any default action is cancelled
+                                    };
+                            });
                             concludedFlag = !concludedFlag;
+                            instructions.textContent = "Sending video to server, you will be redirected to the next page shortly.";
                             const formData = new FormData();
                             formData.append('recorded-video', blob, 'recorded-video.webm');
 
@@ -610,7 +618,6 @@
                             }
                             location.href = '{% url 'vocal' %}'
                         }
-                        
 
                     } catch (error) {
                         console.error('Error uploading video:', error);
