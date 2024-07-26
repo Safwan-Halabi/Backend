@@ -65,6 +65,34 @@ model_pred.summary()
 
 # Create your views here.
 
+def consentForm(request):
+
+    if not request.session.session_key:
+        request.session.create()
+    session_id = request.session.session_key
+
+    template = loader.get_template('consent-form-page.html')
+    return HttpResponse(template.render())
+
+@csrf_exempt
+def saveSignature(request):
+    
+    if not request.session.session_key:
+        request.session.create()
+    session_id = request.session.session_key
+
+    if request.method == 'POST' and request.FILES.get('signature'):
+        signature = request.FILES['signature']
+        full_name = request.POST['full-name']
+        full_name = full_name.replace(" ","-")
+        signature_path = Path('ADHD/signatures/' + str(full_name) + "_" + str(session_id)+ "_signature.png" )
+        with open(signature_path, 'wb+') as destination:
+            for chunk in signature.chunks():
+                destination.write(chunk)
+
+    template = loader.get_template('consent-form-page.html')
+    return HttpResponse(template.render())
+
 def instructions(request):
 
     if not request.session.session_key:
@@ -250,7 +278,7 @@ def results(request):
     base, dist = calculate_mean_median_std(base_array), calculate_mean_median_std(dist_array)
 
     
-    if not questionnaire.split(',')[-1].isnumeric():
+    if (not questionnaire.split(',')[-1].isnumeric()):
         data_file_path = Path('ADHD/temporary_files/data.txt')
         with open(data_file_path,'a') as f:
 
@@ -269,8 +297,9 @@ def results(request):
             for i in reactions_base:
                 f.write(str(i) + ", ")
             for i in range(len(reactions_dist)):
-                f.write(str(reactions_dist[i]) + ", ")   
-            f.write(questionnaire.split(',')[-1] + "\n")
+                f.write(str(reactions_dist[i]) + ", ")
+            label = getLabel(questionnaire)   
+            f.write("Train Mode: " + label + "\n")
     else:
         questions = tuple(map(int, questionnaire.split(',')))
 
@@ -287,6 +316,41 @@ def results(request):
     } 
 
     return HttpResponse(template.render(context=context))
+
+def getLabel(questionnaire):
+    inat = 0
+    hyp = 0
+
+    index = 1
+    for answer_str in questionnaire.split(",")[:-1]:
+        if index > 18:
+            break
+        answer = int(answer_str)
+        if index <= 9:
+            if answer == 2 or answer == 3:
+                inat += 1
+        else:
+            if answer == 2 or answer == 3:
+                hyp += 1
+
+        index += 1
+
+    if hyp >= 6 and inat >= 6:
+        return "Combined"
+    
+    elif hyp >= 6:
+        return "Hyperactivity"
+    
+    elif inat >= 6:
+        return "Inattentive"
+    
+    else:
+        return "No ADHD"
+
+    
+
+
+    return
 
 def get_tips(percentages):
     

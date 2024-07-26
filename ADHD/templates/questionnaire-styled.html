@@ -360,7 +360,8 @@
         <div style="justify-content: right; display: flex; text-align: center; align-items: center;">
             <img src="{% static 'images/nodus-icon-removebg-preview.png'%}" alt="NODUS Logo" sizes="50px">
             <!-- Add your logo URL here -->
-            <a class="logo-name navigation-element" href="#" onclick="location.href='{% url 'landing' %}'"><strong>NODUS</strong></a>
+            <a class="logo-name navigation-element" href="#"
+                onclick="location.href='{% url 'landing' %}'"><strong>NODUS</strong></a>
         </div>
         <nav style="padding: 10px;">
             <a class="navigation-element" href="#" onclick="location.href='{% url 'landing' %}'">Home</a>
@@ -773,23 +774,12 @@
                             <label for="trainModel" style="width: 400px; text-align: center;">Use this data to train our
                                 model?</label>
                             <div class="form-section-answer-group">
-                                <input type="radio" name="trainModel" id="trainModel-yes" onclick="toggleDropdown(true)"
-                                    required />
+                                <input type="radio" name="trainModel" id="trainModel-yes" onclick="" required />
                                 <label for="trainModel-yes">Yes</label>
 
-                                <input type="radio" name="trainModel" id="trainModel-no"
-                                    onclick="toggleDropdown(false)" />
+                                <input type="radio" name="trainModel" id="trainModel-no" onclick="" />
                                 <label for="trainModel-no">No</label>
                             </div>
-                        </div>
-                        <div class="dropdown" id="modelTypeDropdown">
-                            <label for="modelType">Select Sub-Type:</label>
-                            <select name="modelType" id="modelType">
-                                <option value="Combined">Combined</option>
-                                <option value="Hyperactive/Impulsive">Hyperactive/Impulsive</option>
-                                <option value="Inattentive">Inattentive</option>
-                                <option value="No ADHD">No ADHD</option>
-                            </select>
                         </div>
                         <div class="form-button">
                             <button type="button" onclick="submitForm()">Submit</button>
@@ -862,24 +852,15 @@
             }
         }
 
-        function toggleDropdown(show) {
-            const dropdown = document.getElementById('modelTypeDropdown');
-            if (show) {
-                dropdown.style.display = 'block';
-            } else {
-                dropdown.style.display = 'none';
-            }
-        }
-
         function submitForm() {
 
             const navigationElements = document.querySelectorAll('a.navigation-element');
             navigationElements.forEach(element => {
-                    element.href = '#'; // Set href to # to avoid navigation
-                    element.onclick = (event) => {
-                        event.preventDefault(); // Prevent default behavior
-                        return false; // Ensure any default action is cancelled
-                    };
+                element.href = '#'; // Set href to # to avoid navigation
+                element.onclick = (event) => {
+                    event.preventDefault(); // Prevent default behavior
+                    return false; // Ensure any default action is cancelled
+                };
             });
 
             // Array to store answers
@@ -899,9 +880,11 @@
 
             // Handle radio buttons for model training
             var trainModelAnswer = getSelectedAnswer('trainModel');
+            if (trainModelAnswer === null) {
+                answers.push(null);
+            }
             if (trainModelAnswer === "Yes") {
-                var modelType = document.getElementById('modelType').value;
-                answers.push("Train model: " + modelType);
+                answers.push("Train model");
             }
 
             // Log answers to console (you can remove this line in production)
