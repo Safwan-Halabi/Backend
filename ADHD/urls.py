@@ -14,5 +14,7 @@ urlpatterns = [
     path('upload_answers/', views.upload_answers, name="answers"),
     path('results/', views.results, name='results'),
     path('processing/', views.processing, name='processing'),
-    path('done/', views.clean, name='done')
+    path('done/', views.clean, name='done'),
+    path('consent/', views.consentForm, name='consent'),
+    path('signature', views.saveSignature, name='signature')
 ]
