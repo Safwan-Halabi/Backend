@@ -292,11 +292,12 @@
         <div style="justify-content: right; display: flex; text-align: center; align-items: center;">
             <img src="{% static 'images/nodus-icon-removebg-preview.png'%}" alt="NODUS Logo" sizes="50px">
             <!-- Add your logo URL here -->
-            <a class="logo-name navigation-element" href="#" onclick="location.href='{% url 'landing' %}'"><strong>NODUS</strong></a>
+            <a class="logo-name navigation-element" href="#"
+                onclick="location.href='{% url 'landing' %}'"><strong>NODUS</strong></a>
         </div>
         <nav style="padding: 10px;">
             <a class="navigation-element" href="#" onclick="location.href='{% url 'landing' %}'">Home</a>
-            <a class="navigation-element" href="#" onclick="location.href='{% url 'instructions' %}'">Start Test</a>
+            <a class="navigation-element" href="#" onclick="location.href='{% url 'consent' %}'">Start Test</a>
             <a class="navigation-element" href="#" onclick="location.href='{% url 'FAQ' %}'">FAQ</a>
         </nav>
     </header>
@@ -358,7 +359,7 @@
         </div>
     </footer>
     <script>
-        
+
         const mic_btn = document.querySelector('#mic');
         const playback = document.querySelector('.playback');
         const next_btn = document.getElementById('next-page-button');
@@ -367,13 +368,13 @@
         next_btn.addEventListener('click', async () => {
             const navigationElements = document.querySelectorAll('a.navigation-element');
             navigationElements.forEach(element => {
-                    element.href = '#'; // Set href to # to avoid navigation
-                    element.onclick = (event) => {
-                        event.preventDefault(); // Prevent default behavior
-                        return false; // Ensure any default action is cancelled
-                    };
+                element.href = '#'; // Set href to # to avoid navigation
+                element.onclick = (event) => {
+                    event.preventDefault(); // Prevent default behavior
+                    return false; // Ensure any default action is cancelled
+                };
             });
-            
+
             await sendRecording();
             location.href = '{% url 'questionnaire' %}';
 
