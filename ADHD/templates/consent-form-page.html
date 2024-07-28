@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-    {% load static %}
+{% load static %}
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,7 @@
         rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <title>FAQ - Nodus</title>
+    <title>NODUS - Consent Form</title>
 
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
@@ -20,7 +21,7 @@
             function resizeCanvas() {
                 const containerStyle = window.getComputedStyle(canvas.parentNode);
                 const containerWidth = parseFloat(containerStyle.width);
-                
+
                 canvas.width = containerWidth;
                 canvas.height = 200; // Fixed height
 
@@ -105,6 +106,16 @@
                     if (response.ok) {
                         console.log("Signature uploaded successfully.");
                         // Move to next page
+                        const instructions = await fetch('/instructions', {
+                            method: 'GET',
+                            body: null,
+                        });
+
+                        if (instructions.status === 200) {
+                            window.location.href = instructions.url;
+                        }
+
+
                     } else {
                         if (response.status === 201) {
                             console.error('Error - couldnt upload details');
@@ -368,14 +379,18 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%; /* Adjust width as needed */
-            max-width: 800px; /* Set a maximum width */
+            width: 100%;
+            /* Adjust width as needed */
+            max-width: 800px;
+            /* Set a maximum width */
         }
 
         #signature-pad {
             border: 1px solid #000;
-            width: 100%; /* Set width to 100% of the container */
-            height: 200px; /* Fixed height */
+            width: 100%;
+            /* Set width to 100% of the container */
+            height: 200px;
+            /* Fixed height */
         }
     </style>
 </head>
@@ -383,19 +398,21 @@
 <body>
     <header class="header">
         <div style="justify-content: right; display: flex; text-align: center; align-items: center;">
-            <img src="{% static 'images/nodus-icon-removebg-preview.png' %}" alt="NODUS Logo" sizes="50px"> <!-- Add your logo URL here -->
+            <img src="{% static 'images/nodus-icon-removebg-preview.png' %}" alt="NODUS Logo" sizes="50px">
+            <!-- Add your logo URL here -->
             <a class="logo-name" href="#" onclick="location.href='{% url 'landing' %}'"><strong>NODUS</strong></a>
         </div>
         <nav style="padding: 10px;">
             <a href="#" onclick="location.href='{% url 'landing' %}'">Home</a>
-            <a href="#" onclick="location.href='{% url 'instructions' %}'">Start Test</a>
+            <a href="#" onclick="location.href='{% url 'consent' %}'">Start Test</a>
             <a href="#" onclick="location.href='{% url 'FAQ' %}'">FAQ</a>
         </nav>
     </header>
     <section class="hero">
         <div class="overlay" style="width: 65%; margin: auto;">
             <h1>Informed Consent Form</h1>
-            <h2>Project Title:<br> NODUS - Detection of ADHD Symptoms Using Eye-Tracking, Vocal Analysis, and Behavioral Questionnaire</h2>
+            <h2>Project Title:<br> NODUS - Detection of ADHD Symptoms Using Eye-Tracking, Vocal Analysis, and Behavioral
+                Questionnaire</h2>
         </div>
         <br>
         <div class="container">
@@ -403,46 +420,66 @@
                 <p><strong>Project Supervisor:</strong> Dr. Natali Levi</p>
                 <p><strong>Project Developers:</strong> Safwan Halabi & Bishara Bisharat</p>
                 <p><strong>Institution:</strong> Ort Braude - College of Engineering</p>
-                
+
                 <h3>Purpose of the Study</h3>
-                <p>The purpose of this study is to detect symptoms of ADHD using eye-tracking, vocal analysis, and a behavioral questionnaire. The data collected will be used to train a deep learning model for improved detection and analysis of ADHD symptoms.</p>
-                
+                <p>The purpose of this study is to detect symptoms of ADHD using eye-tracking, vocal analysis, and a
+                    behavioral questionnaire. The data collected will be used to train a deep learning model for
+                    improved detection and analysis of ADHD symptoms.</p>
+
                 <h3>Participation</h3>
-                <p>Your participation in this study is voluntary. You will be asked to provide data through eye-tracking, vocal recordings, and answering a behavioral questionnaire. Your data will be anonymized and used solely for the purposes of this research.</p>
-                
+                <p>Your participation in this study is voluntary. You will be asked to provide data through
+                    eye-tracking, vocal recordings, and answering a behavioral questionnaire. Your data will be
+                    anonymized and used solely for the purposes of this research.</p>
+
                 <h3>Procedures</h3>
                 <p>If you agree to participate, you will be asked to undergo the following procedures:</p>
                 <ul>
-                    <strong><li>Eye-tracking sessions to monitor your eye movements.</li></strong>
-                    <strong><li>Vocal recordings to analyze speech patterns.</li></strong>
-                    <strong><li>Completion of a behavioral questionnaire.</li></strong>
+                    <strong>
+                        <li>Eye-tracking sessions to monitor your eye movements.</li>
+                    </strong>
+                    <strong>
+                        <li>Vocal recordings to analyze speech patterns.</li>
+                    </strong>
+                    <strong>
+                        <li>Completion of a behavioral questionnaire.</li>
+                    </strong>
                 </ul>
-                
+
                 <h3>Risks and Discomforts</h3>
-                <p>There are no known risks associated with this study beyond those encountered in daily life. Some participants may experience minor discomfort during the eye-tracking sessions.</p>
-                
+                <p>There are no known risks associated with this study beyond those encountered in daily life. Some
+                    participants may experience minor discomfort during the eye-tracking sessions.</p>
+
                 <h3>Benefits</h3>
-                <p>While there may be no direct benefits to you, your participation will contribute to research that may improve the understanding and detection of ADHD symptoms.</p>
-                
+                <p>While there may be no direct benefits to you, your participation will contribute to research that may
+                    improve the understanding and detection of ADHD symptoms.</p>
+
                 <h3>Confidentiality</h3>
-                <p>Your data will be kept confidential. Only the research team will have access to the data. All data will be anonymized before analysis. Results of the study may be published, but they will not include any information that could identify you.</p>
-                
+                <p>Your data will be kept confidential. Only the research team will have access to the data. All data
+                    will be anonymized before analysis. Results of the study may be published, but they will not include
+                    any information that could identify you.</p>
+
                 <h3>Compensation</h3>
                 <p>There is no compensation for participation in this study.</p>
-                
+
                 <h3>Right to Withdraw</h3>
-                <p>Your participation is voluntary, and you may withdraw from the study at any time without penalty or loss of benefits to which you are otherwise entitled.</p>
-                
+                <p>Your participation is voluntary, and you may withdraw from the study at any time without penalty or
+                    loss of benefits to which you are otherwise entitled.<br> No data will be saved if you answer
+                    "No" to the last question in the questionnaire</p>
+
                 <h3>Contact Information</h3>
-                <p>If you have any questions or concerns about this study, please contact the developers at <br> <strong>Safwan.Halabi@e.braude.ac.il</strong> & <strong>Bishara.Bisharat@e.braude.ac.il</strong></p>
-                
+                <p>If you have any questions or concerns about this study, please contact the developers at <br>
+                    <strong>Safwan.Halabi@e.braude.ac.il</strong> & <strong>Bishara.Bisharat@e.braude.ac.il</strong>
+                </p>
+
                 <h3>Consent</h3>
-                <p>By signing below, you are indicating that you have read and understood the information provided above, and you agree to participate in this study.</p>
-                
+                <p>By signing below, you are indicating that you have read and understood the information provided
+                    above, and you agree to participate in this study.</p>
+
                 <div style="display: flex; justify-content: center; margin: 20px;">
-                    <p><strong>Participant's Full Name:</strong></p><input id="name-field" type="text" name="participant_name" />
+                    <p><strong>Participant's Full Name:</strong></p><input id="name-field" type="text"
+                        name="participant_name" />
                 </div>
-                    <div style="display: flex; justify-content: center; margin: 20px; align-items: center;">
+                <div style="display: flex; justify-content: center; margin: 20px; align-items: center;">
                     <p><strong>Participant's Signature:</strong></p>
                     <div id="signature-container">
                         <canvas id="signature-pad"></canvas>
@@ -450,7 +487,7 @@
                 </div>
                 <button id="save-signature">Save Signature</button>
                 <button id="clear-signature">Clear Signature</button>
-        </div>
+            </div>
     </section>
     <footer class="footer">
         <div style="text-align: center; align-items: center; padding: 20px;">
@@ -466,7 +503,8 @@
         </div>
         <div style="padding: 20px; display: flex; align-items: center; justify-content: center; flex-direction: row;">
             <h2><strong style="font-size: 30px;">NODUS</strong></h2>
-            <img src="{% static 'images/nodus-icon-removebg-preview.png' %}" alt="NODUS Logo" sizes="50px" style="width: 70px;">
+            <img src="{% static 'images/nodus-icon-removebg-preview.png' %}" alt="NODUS Logo" sizes="50px"
+                style="width: 70px;">
         </div>
     </footer>
 
@@ -488,13 +526,13 @@
         }
 
         function customAlert(message) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Incomplete Form',
-                    text: message,
-                    confirmButtonText: 'OK'
-                });
-            }
+            Swal.fire({
+                icon: 'warning',
+                title: 'Incomplete Form',
+                text: message,
+                confirmButtonText: 'OK'
+            });
+        }
 
         // Clean up files in backend
         document.addEventListener('DOMContentLoaded', (event) => {

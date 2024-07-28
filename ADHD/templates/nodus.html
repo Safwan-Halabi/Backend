@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-    {% load static %}
+{% load static %}
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -198,12 +199,13 @@
 <body>
     <header class="header">
         <div style="justify-content: right; display: flex; text-align: center; align-items: center;">
-            <img src="{% static 'images/nodus-icon-removebg-preview.png' %}" alt="NODUS Logo" sizes="50px"> <!-- Add your logo URL here -->
+            <img src="{% static 'images/nodus-icon-removebg-preview.png' %}" alt="NODUS Logo" sizes="50px">
+            <!-- Add your logo URL here -->
             <a class="logo-name" href="#" onclick="location.href='{% url 'landing' %}'"><strong>NODUS</strong></a>
         </div>
         <nav style="padding: 10px;">
             <a href="#" onclick="location.href='{% url 'landing' %}'">Home</a>
-            <a href="#" onclick="location.href='{% url 'instructions' %}'">Start Test</a>
+            <a href="#" onclick="location.href='{% url 'consent' %}'">Start Test</a>
             <a href="#" onclick="location.href='{% url 'FAQ' %}'">FAQ</a>
         </nav>
     </header>
@@ -212,7 +214,7 @@
             <h1>NODUS</h1>
             <h1>ADHD Detection</h1>
             <p>Easy Testing for Children</p>
-            <button id="next-page" onclick="location.href='{% url 'instructions' %}'">Start the Test</button>
+            <button id="next-page" onclick="location.href='{% url 'consent' %}'">Start the Test</button>
         </div>
     </section>
     <section class="content">
@@ -237,7 +239,8 @@
         <div style=" display: flex; margin: auto; width: 75%; align-items: center; justify-content: center;">
             <div class="columns">
                 <div class="column">
-                    <img src="{% static 'images/vision-icon.png'%}" alt="Eye-Tracking Tests"> <!-- Add your icon URL here -->
+                    <img src="{% static 'images/vision-icon.png'%}" alt="Eye-Tracking Tests">
+                    <!-- Add your icon URL here -->
                     <h3>Eye-Tracking Tests</h3>
                 </div>
                 <div class="column">
@@ -245,7 +248,8 @@
                     <h3>Vocal Tests</h3>
                 </div>
                 <div class="column">
-                    <img src="{% static 'images/analysis-icon.png'%}" alt="Analysis and Treatments"> <!-- Add your icon URL here -->
+                    <img src="{% static 'images/analysis-icon.png'%}" alt="Analysis and Treatments">
+                    <!-- Add your icon URL here -->
                     <h3>Analysis and Treatments</h3>
                 </div>
             </div>
@@ -254,7 +258,8 @@
     <footer class="footer">
         <div style="text-align: center; align-items: center; padding: 20px;">
             <h3>Learn more about ADHD</h3>
-            <p><a href="https://applications.emro.who.int/docs/EMRPUB_leaflet_2019_mnh_214_en.pdf" target="_blank">World Health
+            <p><a href="https://applications.emro.who.int/docs/EMRPUB_leaflet_2019_mnh_214_en.pdf" target="_blank">World
+                    Health
                     Organization - ADHD</a></p>
             <p><a href="https://www.cdc.gov/adhd/index.html" target="_blank">CDC.gov - ADHD</a></p>
         </div>
@@ -265,7 +270,8 @@
         </div>
         <div style="padding: 20px; display: flex; align-items: center; justify-content: center; flex-direction: row;">
             <h2><strong style="font-size: 30px;">NODUS</strong></h2>
-            <img src="{% static 'images/nodus-icon-removebg-preview.png' %}" alt="NODUS Logo" sizes="50px" style="width: 70px;">
+            <img src="{% static 'images/nodus-icon-removebg-preview.png' %}" alt="NODUS Logo" sizes="50px"
+                style="width: 70px;">
         </div>
     </footer>
 
