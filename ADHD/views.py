@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect
 from django.http import HttpResponse
 from django.template import loader
 from django.http import JsonResponse
@@ -63,8 +63,9 @@ weight_path = Path('ADHD/static/weights/model_weights (1).h5')
 model_pred.load_weights(weight_path)
 model_pred.summary()
 
-# Create your views here.
+# Create your views here
 
+# A function that loads the conesnt form page
 def consentForm(request):
 
     if not request.session.session_key:
@@ -74,6 +75,8 @@ def consentForm(request):
     template = loader.get_template('consent-form-page.html')
     return HttpResponse(template.render())
 
+
+# A function that saves the signature and full name from the consent form, it saves the data to a local folder
 @csrf_exempt
 def saveSignature(request):
     
@@ -91,18 +94,28 @@ def saveSignature(request):
                 destination.write(chunk)
 
     template = loader.get_template('consent-form-page.html')
+    request.session['progress'] = 'step1'
     return HttpResponse(template.render())
 
+# A function that loads the instruction page
 def instructions(request):
+
+    if request.session.get('progress') != 'step1' and request.session.get('progress') != 'step2': # Fix this, user can access instructions immediately without providing a signature
+        return redirect('/consent/')
 
     if not request.session.session_key:
         request.session.create()
     session_id = request.session.session_key
 
     template = loader.get_template('instructions.html')
+    request.session['progress'] = 'step2'
     return HttpResponse(template.render())
 
+# A function that loads the eye-test page
 def eyeTest(request):
+
+    if request.session.get('progress') != 'step2':
+        return redirect('/instructions')
 
     if not request.session.session_key:
         request.session.create()
@@ -111,7 +124,12 @@ def eyeTest(request):
     template = loader.get_template('eye-test.html')
     return HttpResponse(template.render())
 
+# A function that loads the vocal-test page
 def vocalTest(request):
+
+    if request.session.get('progress') != 'step3':
+        return redirect('/ADHD/')
+
 
     if not request.session.session_key:
         request.session.create()
@@ -120,7 +138,11 @@ def vocalTest(request):
     template = loader.get_template('vocal-test.html')
     return HttpResponse(template.render())
 
+# A function that loads the questionnaire page
 def questionnaire(request):
+    
+    if request.session.get('progress') != 'step4':
+        return redirect('/vocal-test')
 
     if not request.session.session_key:
         request.session.create()
@@ -129,35 +151,44 @@ def questionnaire(request):
     template = loader.get_template('questionnaire-styled.html')
     return HttpResponse(template.render())
 
-
+# A function that loads the landing page
 def landingPage(request):
 
     if not request.session.session_key:
         request.session.create()
     session_id = request.session.session_key
 
+    request.session['progress'] = 'step0'
     template = loader.get_template('nodus.html')
     return HttpResponse(template.render())
 
+# A function that loads the frequently asked questions page
 def FAQ(request):
 
     if not request.session.session_key:
         request.session.create()
     session_id = request.session.session_key
 
+    request.session['progress'] = 'step0'
     template = loader.get_template('FAQ.html')
     return HttpResponse(template.render())
 
+# A function that loads the processing page (does nothing)
 @csrf_exempt
 def processing(request):
+
+    if request.session.get('progress') != 'step5':
+        return redirect('/questionnaire/')
 
     if not request.session.session_key:
         request.session.create()
     session_id = request.session.session_key
 
+    request.session['progress'] = 'step6'
     template = loader.get_template('processing.html')
     return HttpResponse(template.render())
 
+# A function that deletes the temporary files created by the user's tests
 def clean(request):
 
     if not request.session.session_key:
@@ -219,8 +250,14 @@ def clean(request):
     
     return JsonResponse({'message': str(ret)}, status=200)  
 
+# A function that analyzes the test data, runs the Deep Learning model and loads the results page
 @csrf_exempt
 def results(request):
+
+    if request.session.get('progress') != 'step6':
+        return redirect('/questionnaire/')
+    else:
+        request.session['progress'] = 'step1'
 
     if not request.session.session_key:
         request.session.create()
@@ -317,6 +354,7 @@ def results(request):
 
     return HttpResponse(template.render(context=context))
 
+# A helper function that calculates what the user's subtype is
 def getLabel(questionnaire):
     inat = 0
     hyp = 0
@@ -347,11 +385,8 @@ def getLabel(questionnaire):
     else:
         return "No ADHD"
 
-    
 
-
-    return
-
+# A helper function that yields tips according to the user's subtype
 def get_tips(percentages):
     
     combined = "Balance your day with both physical activities and quieter tasks, using visual schedules and verbal reminders to stay organized. Break tasks into smaller steps and check in with yourself or ask for help to ensure you stay on track. Engage in structured physical activities and plan movement breaks to manage hyperactivity. Use positive reinforcement and behavior plans with specific goals and rewards to encourage good behavior and task completion. Collaborate with teachers and involve your family in supporting you. Enjoy consistent feedback and support from those around you to manage both inattentive and hyperactive symptoms effectively."
@@ -363,6 +398,7 @@ def get_tips(percentages):
 
     return tips_array[np.argmax(percentages)]
 
+# A function that saves the video created by the eye-test
 @csrf_exempt
 def upload_video(request):
 
@@ -399,12 +435,14 @@ def upload_video(request):
 
         res = True
         if(res):
+            request.session['progress'] = 'step3'
             return JsonResponse({'message': str(res)}, status=200)
         else:
             return JsonResponse({'message': 'No eyes detected, try sitting closer to the screen, brighten or dampen the room'}, status=201)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
+# A function that loads the initial video created by the eye-test configuration and checks if the eyes are detected
 def initial_video_check(url):
 
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -421,7 +459,6 @@ def initial_video_check(url):
         faces = face_cascade.detectMultiScale(frame, 1.3, 5)
         if len(faces) != 0:
             for (x,y,w,h) in faces:
-                face_center = [int(h/2),int(w/2)]
                 roi_color = frame[y:y+h, x:x+w]
                 eyes = eye_cascade.detectMultiScale(roi_color)
                 if len(eyes) != 0:
@@ -434,6 +471,8 @@ def initial_video_check(url):
     cap.release()
     return detected > undetected*1.5 and detected > 40
 
+
+# A function that loads the eye-test video and analyzes eye movement data
 def eye_test_analysis(url):
 
 
@@ -504,21 +543,25 @@ def eye_test_analysis(url):
     std = (std_right + std_left)/2
     return mean, median, std
 
+# A helper function that calculates the squared difference between eye positions for each step
 def calculate_difference(eye_position_array):
     difference = []
     for i in range(1,len(eye_position_array)):
         difference.append(distance_squared(eye_position_array[i-1], eye_position_array[i]))
     return difference
 
+# A helper function that calculates the squared difference between 2 points
 def distance_squared(point1, point2):
     return ((point1[0]-point2[0])**2 + (point1[1] - point2[1])**2)
 
+# A helper function that calculates the mean, median and standard deviation of an array\list of numbers
 def calculate_mean_median_std(eye_movement_distance_array):
     data = []
     for coord in eye_movement_distance_array:
         data.append(coord)
     return np.mean(data), np.median(data), np.std(data)
 
+# A function that saves the audio file created by the vocal-test
 @csrf_exempt
 def upload_voice(request):
 
@@ -534,9 +577,10 @@ def upload_voice(request):
                 destination.write(chunk)
         y, sr = librosa.load(save_path)
         sf.write(save_path, y, sr)
+        request.session['progress'] = 'step4'
     return JsonResponse({'message': 'Uploaded video successfully'}, status=200)
 
-
+# A function that loads the vocal-test audio file and analyzes the vocal characterisitcs of the user
 def analyze_voice(url):
 
     #y, sr = librosa.load(url, sr=None)
@@ -551,6 +595,7 @@ def analyze_voice(url):
     vqi = (f0 / 100) + jitter + shimmer + (hnr / 10)
     return f0, jitter, shimmer, hnr, vqi
 
+# A function that saves the questionnaire answers created by the questionnaire page
 @csrf_exempt
 def upload_answers(request):
 
@@ -563,15 +608,17 @@ def upload_answers(request):
         save_path_arrays = Path('ADHD/temporary_files/' + str(session_id)+ "_questionnaire.txt")
         with open(save_path_arrays, 'w+') as destination:
             destination.write(answers)
+        request.session['progress'] = 'step5'
     return JsonResponse({'message': "Questionnaire answers uploaded successfully"}, status=200)
 
-
+# A helper function that extracts the Fundamental Frequency of the user's voice (F0)
 def extract_fundamental_frequency(audio_path):
     snd = parselmouth.Sound(audio_path)
     pitch = call(snd, "To Pitch", 0.0, 75, 600)
     mean_f0 = call(pitch, "Get mean", 0, 0, "Hertz")
     return mean_f0
 
+# A helper function that extracts the various vocal characteristics of the user's voice, specifically Jitter, Shimmer and Harmonics-to-Noise Ratio
 def extract_jitter_shimmer_hnr(audio_path):
     snd = parselmouth.Sound(audio_path)
     point_process = call(snd, "To PointProcess (periodic, cc)", 75, 600)
@@ -588,7 +635,7 @@ def extract_jitter_shimmer_hnr(audio_path):
     
     return jitter, shimmer, hnr
 
-# Receive tuples and turn them into lists, then into np.arrays
+# A function that receives the tests' results as tuples and turns them into lists, then into np.arrays and runs the model on these parameters to get the predicted results
 def model(eye, react1, react2, vocal, questions):
 
     eye_list = list(eye)
