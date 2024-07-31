@@ -100,7 +100,7 @@ def saveSignature(request):
 # A function that loads the instruction page
 def instructions(request):
 
-    if request.session.get('progress') != 'step1' and request.session.get('progress') != 'step2': # Fix this, user can access instructions immediately without providing a signature
+    if request.session.get('progress') != 'step1' and request.session.get('progress') != 'step2':
         return redirect('/consent/')
 
     if not request.session.session_key:
@@ -177,14 +177,17 @@ def FAQ(request):
 @csrf_exempt
 def processing(request):
 
-    if request.session.get('progress') != 'step5':
+    if request.session.get('progress') != 'step5' and request.session.get('progress') != 'step5.5':
         return redirect('/questionnaire/')
+    elif request.session.get('progress') != 'step5.5':
+        request.session['progress'] = 'step5.5'
+    else:
+        request.session['progress'] = 'step6'
 
     if not request.session.session_key:
         request.session.create()
     session_id = request.session.session_key
 
-    request.session['progress'] = 'step6'
     template = loader.get_template('processing.html')
     return HttpResponse(template.render())
 
@@ -254,8 +257,10 @@ def clean(request):
 @csrf_exempt
 def results(request):
 
-    if request.session.get('progress') != 'step6':
+    if request.session.get('progress') != 'step6' and request.session.get('progress') != 'step6.5':
         return redirect('/questionnaire/')
+    elif request.session.get('progress') != 'step6.5':
+        request.session['progress'] = 'step6.5'
     else:
         request.session['progress'] = 'step1'
 
@@ -351,7 +356,6 @@ def results(request):
         'questionnaire': questionnaire,
         'reaction_time': reaction.split('\n')
     } 
-
     return HttpResponse(template.render(context=context))
 
 # A helper function that calculates what the user's subtype is
