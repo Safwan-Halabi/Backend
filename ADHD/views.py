@@ -4,6 +4,7 @@ from django.template import loader
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from pathlib import Path
+from .models import signatures_collection
 import cv2
 import numpy as np
 import librosa 
@@ -150,6 +151,7 @@ def questionnaire(request):
 
     template = loader.get_template('questionnaire-styled.html')
     return HttpResponse(template.render())
+
 
 # A function that loads the landing page
 def landingPage(request):
@@ -656,3 +658,18 @@ def model(eye, react1, react2, vocal, questions):
 
     prediction = model_pred.predict([eye_np, react1_np, react2_np, vocal_np, questions_np])
     return prediction[0]
+
+
+# ========================================================== Database methods ==========================================================
+
+def add_signatures(request):
+    records = {
+        "p": "s"
+    }
+
+    signatures_collection.insert_one(records)
+    return HttpResponse("New Person is added.")
+
+def get_all_signatures(request):
+    signatures = signatures_collection.find()
+    return signatures

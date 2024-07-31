@@ -16,5 +16,8 @@ urlpatterns = [
     path('processing/', views.processing, name='processing'),
     path('done/', views.clean, name='done'),
     path('consent/', views.consentForm, name='consent'),
-    path('signature', views.saveSignature, name='signature')
+    path('signature', views.saveSignature, name='signature'),
+
+    path('add/', views.add_signatures),
+    path('getsignaturesdb/', views.get_all_signatures)
 ]
