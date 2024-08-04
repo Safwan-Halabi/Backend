@@ -8,3 +8,4 @@ class Patient(models.Model):
   Percentage = models.CharField(max_length=255)
 
 signatures_collection = db['signatures']
+train_data_collection = db['traindata']

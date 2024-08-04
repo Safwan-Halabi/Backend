@@ -18,6 +18,7 @@ urlpatterns = [
     path('consent/', views.consentForm, name='consent'),
     path('signature', views.saveSignature, name='signature'),
 
+    # path('dummy',views.dummy_data, name="dummy"),
     # path('add/', views.save_signature_toDB),
-    path('getsignaturesdb/', views.get_all_signatures)
+    # path('getsignaturesdb/', views.get_all_signatures)
 ]

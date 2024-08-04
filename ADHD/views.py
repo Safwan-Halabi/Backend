@@ -1,10 +1,11 @@
 from django.shortcuts import redirect
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http import HttpResponse
 from django.template import loader
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from pathlib import Path
-from .models import signatures_collection
+from .models import signatures_collection, train_data_collection
 import cv2
 import numpy as np
 import librosa 
@@ -16,6 +17,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Flatten, Conv1D, MaxPooling1D, Concatenate, Reshape
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
+from bson.binary import Binary
 
 
 ### MODEL ###
@@ -337,19 +339,23 @@ def results(request):
             questions = tuple(map(int, questionnaire.split(',')[:-1]))
             reactions_base = base
             reactions_dist = dist
+            string = ""
 
             for i in eye:
-                f.write(str(i) + ", ")
+                string += str(i) + ", "
             for i in vocal:
-                f.write(str(i) + ", ")
+                string += str(i) + ", "
             for i in questions:
-                f.write(str(i) + ", ")
+                string += str(i) + ", "
             for i in reactions_base:
-                f.write(str(i) + ", ")
+                string += str(i) + ", "
             for i in range(len(reactions_dist)):
-                f.write(str(reactions_dist[i]) + ", ")
+                string += str(reactions_dist[i]) + ", "
             label = getLabel(questionnaire)   
-            f.write("Train Mode: " + label + "\n")
+            string += "Train Mode: " + label
+            save_test_results_toDB(label, string)
+
+            
     else:
         questions = tuple(map(int, questionnaire.split(',')))
 
@@ -386,6 +392,7 @@ def getLabel(questionnaire):
         index += 1
 
     if hyp >= 6 and inat >= 6:
+
         return "Combined"
     
     elif hyp >= 6:
@@ -669,13 +676,38 @@ def model(eye, react1, react2, vocal, questions):
 # ========================================================== Database methods ==========================================================
 
 def save_signature_toDB(full_name, signature):
+    if isinstance(signature, InMemoryUploadedFile):
+        # Read the file content
+        file_data = signature.read()
+        
+        # Convert the file content to BSON Binary
+        binary_signature = Binary(file_data)
+        
+        # Create the record to be saved
+        record = {
+            "full_name": full_name,
+            "signature": binary_signature
+        }
+        
+        # Insert the record into MongoDB
+        signatures_collection.insert_one(record)
+        return HttpResponse("New Person is added.")
+    else:
+        return HttpResponse("Invalid file type.", status=400)
+
+
+def save_test_results_toDB(label, data):
     record = {
-        full_name: signature
+        label: data
     }
 
-    signatures_collection.insert_one(record)
-    return HttpResponse("New Person is added.")
+    train_data_collection.insert_one(record)
 
 def get_all_signatures(request):
     signatures = signatures_collection.find()
     return signatures
+
+# def dummy_data(request):
+#     string = "135.34005764054643, 16.5, 612.1943038200075, 166.3011130613908, 0.03299776024567752, 0.16355241628927905, 5.392012914699131, 2.3987625986187773, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 397.2857142857143, 373.0, 65.09710172550868, 403.8888888888889, 408.0, 55.61863086022014, Train model: No ADHD"
+#     label = "No ADHD"
+#     save_test_results_toDB(label,string)
