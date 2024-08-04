@@ -89,10 +89,16 @@ def saveSignature(request):
         signature = request.FILES['signature']
         full_name = request.POST['full-name']
         full_name = full_name.replace(" ","-")
+
+        #Save signature to database
+        name_and_session = str(full_name) + "_" + str(session_id)
+        save_signature_toDB(full_name=name_and_session, signature=signature)
+
         signature_path = Path('ADHD/signatures/' + str(full_name) + "_" + str(session_id)+ "_signature.png" )
         with open(signature_path, 'wb+') as destination:
             for chunk in signature.chunks():
                 destination.write(chunk)
+
 
     template = loader.get_template('consent-form-page.html')
     request.session['progress'] = 'step1'
@@ -662,12 +668,12 @@ def model(eye, react1, react2, vocal, questions):
 
 # ========================================================== Database methods ==========================================================
 
-def add_signatures(request):
-    records = {
-        "p": "s"
+def save_signature_toDB(full_name, signature):
+    record = {
+        full_name: signature
     }
 
-    signatures_collection.insert_one(records)
+    signatures_collection.insert_one(record)
     return HttpResponse("New Person is added.")
 
 def get_all_signatures(request):
