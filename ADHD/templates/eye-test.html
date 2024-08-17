@@ -708,6 +708,8 @@
             function testConclude() {
                 isRecording = !isRecording;
                 startStopButton.textContent = 'Start Test';
+                instructions1.remove();
+                startStopButton.remove();
                 mediaRecorder.stop();
                 restoreElements();
 
