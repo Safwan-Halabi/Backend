@@ -588,6 +588,7 @@
                             });
                             concludedFlag = !concludedFlag;
                             instructions.textContent = "Sending video to server, you will be redirected to the next page shortly.";
+                            instructions1.textContent = "";
                             const formData = new FormData();
                             formData.append('recorded-video', blob, 'recorded-video.webm');
 
