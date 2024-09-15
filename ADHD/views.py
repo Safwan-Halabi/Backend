@@ -14,9 +14,11 @@ import parselmouth
 import soundfile as sf
 from parselmouth.praat import call
 import tensorflow as tf
-from tensorflow.keras.layers import Input, Dense, Flatten, Conv1D, MaxPooling1D, Concatenate, Reshape
-from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, Dense, Input, Dropout, BatchNormalization
+from tensorflow.keras.regularizers import l2
+from tensorflow.keras.utils import to_categorical
+from sklearn.preprocessing import LabelEncoder
 from bson.binary import Binary
 
 
@@ -29,42 +31,81 @@ audio_input_shape = (5,)  # 5 features: Fundamental Frequency, Jitter, Shimmer, 
 questionnaire_input_shape = (20,)  # 20 questions in total
 
 # Eye tracking model
-eye_tracking_input = Input(shape=eye_tracking_input_shape, name='eye_tracking_input')
-x_eye = Dense(64, activation='relu')(eye_tracking_input)
+# eye_tracking_input = Input(shape=eye_tracking_input_shape, name='eye_tracking_input')
+# x_eye = Dense(64, activation='relu')(eye_tracking_input)
 
-# Reaction time models
-reaction_time_input_1 = Input(shape=reaction_time_input_shape_1, name='reaction_time_input_1')
-reaction_time_input_2 = Input(shape=reaction_time_input_shape_2, name='reaction_time_input_2')
-x_reaction_time_1 = Dense(64, activation='relu')(reaction_time_input_1)
-x_reaction_time_2 = Dense(64, activation='relu')(reaction_time_input_2)
+# # Reaction time models
+# reaction_time_input_1 = Input(shape=reaction_time_input_shape_1, name='reaction_time_input_1')
+# reaction_time_input_2 = Input(shape=reaction_time_input_shape_2, name='reaction_time_input_2')
+# x_reaction_time_1 = Dense(64, activation='relu')(reaction_time_input_1)
+# x_reaction_time_2 = Dense(64, activation='relu')(reaction_time_input_2)
 
-# Audio recording model
-audio_input = Input(shape=audio_input_shape, name='audio_input')
-x_audio = Dense(64, activation='relu')(audio_input)
-x_audio = Dense(32, activation='relu')(x_audio)
+# # Audio recording model
+# audio_input = Input(shape=audio_input_shape, name='audio_input')
+# x_audio = Dense(64, activation='relu')(audio_input)
+# x_audio = Dense(32, activation='relu')(x_audio)
 
-# Questionnaire model
-questionnaire_input = Input(shape=questionnaire_input_shape, name='questionnaire_input')
-x_questionnaire = Dense(64, activation='relu')(questionnaire_input)
-x_questionnaire = Dense(32, activation='relu')(x_questionnaire)
+# # Questionnaire model
+# questionnaire_input = Input(shape=questionnaire_input_shape, name='questionnaire_input')
+# x_questionnaire = Dense(64, activation='relu')(questionnaire_input)
+# x_questionnaire = Dense(32, activation='relu')(x_questionnaire)
 
-# Concatenate all models
-concatenated = Concatenate()([x_eye, x_reaction_time_1, x_reaction_time_2, x_audio, x_questionnaire])
-x = Dense(64, activation='relu')(concatenated)
-x = Dense(32, activation='relu')(x)
-output = Dense(4, activation='softmax', name='output')(x)
+# # Concatenate all models
+# concatenated = Concatenate()([x_eye, x_reaction_time_1, x_reaction_time_2, x_audio, x_questionnaire])
+# x = Dense(64, activation='relu')(concatenated)
+# x = Dense(32, activation='relu')(x)
+# output = Dense(4, activation='softmax', name='output')(x)
 
-# Create model
-model_pred = Model(inputs=[eye_tracking_input, reaction_time_input_1, reaction_time_input_2, audio_input, questionnaire_input], outputs=output)
+# # Create model
+# model_pred = Model(inputs=[eye_tracking_input, reaction_time_input_1, reaction_time_input_2, audio_input, questionnaire_input], outputs=output)
 
-# Compile model
-model_pred.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
+# # Compile model
+# model_pred.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
 
-weight_path = Path('ADHD/static/weights/model_weights (1).h5')
+# weight_path = Path('ADHD/static/weights/model_weights (1).h5')
 
-# To load the weights later
-model_pred.load_weights(weight_path)
+# # To load the weights later
+# model_pred.load_weights(weight_path)
+# model_pred.summary()
+
+model_pred = Sequential()
+
+# Input layer
+input_shape = (3 + 5 + 20 + 3 + 3, 1)  # Combined input features
+model_pred.add(Input(shape=input_shape))
+
+# Conv1D layer with Batch Normalization and Dropout
+model_pred.add(Conv1D(filters=64, kernel_size=3, activation='relu', kernel_regularizer=l2(0.001)))
+model_pred.add(BatchNormalization())
+model_pred.add(MaxPooling1D(pool_size=2))
+model_pred.add(Dropout(0.3))
+
+# Additional Conv1D layer for deeper feature extraction
+model_pred.add(Conv1D(filters=128, kernel_size=3, activation='relu', kernel_regularizer=l2(0.001)))
+model_pred.add(BatchNormalization())
+model_pred.add(MaxPooling1D(pool_size=2))
+model_pred.add(Dropout(0.3))
+
+# Flatten layer
+model_pred.add(Flatten())
+
+# Fully connected layers with Dropout and Regularization
+model_pred.add(Dense(128, activation='relu', kernel_regularizer=l2(0.001)))
+model_pred.add(Dropout(0.4))
+model_pred.add(Dense(64, activation='relu', kernel_regularizer=l2(0.001)))
+model_pred.add(Dropout(0.4))
+
+# Output layer
+model_pred.add(Dense(4, activation='softmax'))
+
+# Compile the model
+model_pred.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+# Summary of the model
 model_pred.summary()
+
+weight_path = Path('ADHD/static/weights/93model15.weights.h5')
+model_pred.load_weights(weight_path)
 
 # Create your views here
 
@@ -655,22 +696,47 @@ def extract_jitter_shimmer_hnr(audio_path):
     return jitter, shimmer, hnr
 
 # A function that receives the tests' results as tuples and turns them into lists, then into np.arrays and runs the model on these parameters to get the predicted results
+# def model(eye, react1, react2, vocal, questions):
+
+#     eye_list = list(eye)
+#     react1_list = list(react1)
+#     react2_list = list(react2)
+#     vocal_list = list(vocal)
+#     questions_list = list(questions)
+
+#     eye_np = np.ndarray([eye_list])
+#     react1_np = np.ndarray([react1_list])
+#     react2_np = np.ndarray([react2_list])
+#     vocal_np = np.ndarray([vocal_list])
+#     questions_np = np.ndarray([questions_list])
+
+#     # prediction = model_pred.predict([eye_np, react1_np, react2_np, vocal_np, questions_np])
+#     prediction = model_pred.predict(np.ndarray(eye_np, vocal_np, questions_np, react1_np, react2_np))
+
+#     return prediction[0]
+
 def model(eye, react1, react2, vocal, questions):
 
-    eye_list = list(eye)
-    react1_list = list(react1)
-    react2_list = list(react2)
-    vocal_list = list(vocal)
-    questions_list = list(questions)
+    tup = []
 
-    eye_np = np.array([eye_list])
-    react1_np = np.array([react1_list])
-    react2_np = np.array([react2_list])
-    vocal_np = np.array([vocal_list])
-    questions_np = np.array([questions_list])
+    for item in eye:
+      tup.append(item)
+    for item in vocal:
+      tup.append(item)
+    for item in questions:
+      tup.append(item)
+    for item in react1:
+      tup.append(item)
+    for item in react2:
+      tup.append(item)
 
-    prediction = model_pred.predict([eye_np, react1_np, react2_np, vocal_np, questions_np])
-    return prediction[0]
+    ndarray_of_arrays = np.array([np.array([x]) for x in tup])
+
+    final = np.array(ndarray_of_arrays)
+    final = np.expand_dims(final, axis=0)
+    prediction = model_pred.predict(final)
+
+    return prediction
 
 
 # ========================================================== Database methods ==========================================================
