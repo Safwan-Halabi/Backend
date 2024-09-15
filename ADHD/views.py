@@ -104,7 +104,7 @@ model_pred.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['
 # Summary of the model
 model_pred.summary()
 
-weight_path = Path('ADHD/static/weights/93model15.h5')
+weight_path = Path('ADHD/static/weights/93model15.weights.h5')
 model_pred.load_weights(weight_path)
 
 # Create your views here
