@@ -382,10 +382,10 @@
             diagnosisDataBackend[3] = 0;
         }
 
-        comb.textContent = "Combined - " + diagnosisDataBackend[0] * 100 + "%";
-        imp.textContent = "Impulsive/Hyperactive - " + diagnosisDataBackend[1] * 100 + "%";
-        inat.textContent = "Inattentive - " + diagnosisDataBackend[2] * 100 + "%";
-        none.textContent = "No ADHD - " + diagnosisDataBackend[3] * 100 + "%";
+        comb.textContent = "Combined - " + parseFloat(diagnosisDataBackend[0] * 100).toFixed(2) + "%";
+        imp.textContent = "Impulsive/Hyperactive - " + parseFloat(diagnosisDataBackend[1] * 100).toFixed(2) + "%";
+        inat.textContent = "Inattentive - " + parseFloat(diagnosisDataBackend[2] * 100).toFixed(2) + "%";
+        none.textContent = "No ADHD - " + parseFloat(diagnosisDataBackend[3] * 100).toFixed(2) + "%";
 
         let max = -1;
         let index = -1;
@@ -397,7 +397,7 @@
         }
 
         const types = ["Combined", "Impulsive/Hyperactive", "Inattentive", "No ADHD"];
-        dom.textContent = types[index] + " - " + diagnosisDataBackend[index] * 100 + "%";
+        dom.textContent = types[index] + " - " + parseFloat(diagnosisDataBackend[index] * 100).toFixed(2) + "%";
 
 
 
