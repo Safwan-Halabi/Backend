@@ -736,7 +736,7 @@ def model(eye, react1, react2, vocal, questions):
     final = np.expand_dims(final, axis=0)
     prediction = model_pred.predict(final)
 
-    return prediction
+    return prediction[0]
 
 
 # ========================================================== Database methods ==========================================================
